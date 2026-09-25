@@ -24,3 +24,6 @@ npm-debug.log*
 .vscode/
 .DS_Store
 Thumbs.db
+
+# ---- Base H2 locale ----
+data/

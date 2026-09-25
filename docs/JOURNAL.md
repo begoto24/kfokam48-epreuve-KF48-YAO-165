@@ -52,17 +52,7 @@ Djoukoya-de-begoto Prince Malachie. Une entrée par étape, écrite au moment o�
 
 ---
 
-## Étape 5 — Épreuve Git
-
-**Fait :**
-
-**Bloqué :**
-
-**IA :**
-
----
-
-## Étape 6 — Soumission
+## Étape 5 — Soumission
 
 **Fait :**
 

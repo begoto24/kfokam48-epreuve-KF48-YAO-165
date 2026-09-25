@@ -180,7 +180,6 @@ Ce changement **remplace Q6** (« un seul relecteur ») et rend RG6, RG7, RG14, 
   - `README.md` d'installation, `CHANGELOG.md` ;
   - backlog en issues GitHub, PR liées ;
   - trois commits jalons `[JALON] analyse`, `[JALON] v0.1`, `[JALON] v1.0`.
-- Dépôt public séparé `kfokam48-gitlab-KF48-YAO-165` (épreuve Git).
 - `SOUMISSION.md` déposé sur la plateforme.
 
 ## 10. Démarche prévue
@@ -189,10 +188,11 @@ Ce changement **remplace Q6** (« un seul relecteur ») et rend RG6, RG7, RG14, 
 2. **v0.1** : uniquement les issues **Must** (EF1 à EF8), dans l'ordre des dépendances : socle backend et schéma → sessions → présences → exercices et assignation → relectures → tableau → écrans React. Une branche et une PR par issue → `[JALON] v0.1`.
 3. **Enveloppe** : j'ouvre une issue pour le bug et une pour l'évolution **avant** de coder ; je reproduis le bug par un test ; je versionne la migration ; je mets à jour le contrat, puis ce document et les diagrammes dans un commit dédié ; je re-priorise le backlog par écrit.
 4. **v1.0** : les issues **Should** dans la limite du temps, `CHANGELOG.md`, README testé depuis un clone vierge → `[JALON] v1.0`.
-5. **Épreuve Git** sur le bundle, dans un dépôt séparé.
-6. **Soumission** au plus tard vers 17h00, pas à 17h58.
+5. **Soumission** au plus tard vers 17h00, pas à 17h58.
 
-**Si je prends du retard :** je sacrifie d'abord les **Could**, puis les **Should** dans l'ordre inverse de leur numéro. Je garde toujours la marge nécessaire aux étapes 5 et 6, qui valent plus de points que les dernières fonctionnalités.
+*(v2 : le sujet a été réduit à cinq étapes en cours de journée ; l'épreuve Git sur bundle séparé ne fait plus partie des livrables.)*
+
+**Si je prends du retard :** je sacrifie d'abord les **Could**, puis les **Should** dans l'ordre inverse de leur numéro. Je garde toujours la marge nécessaire à l'étape 4 (livraison, README testé) et à l'étape 5 (soumission), qui valent plus que les dernières fonctionnalités.
 
 **Definition of Done — un ticket est terminé quand :**
 - ses critères d'acceptation sont vérifiés (par un test automatique quand il touche une règle `RGx`, sinon à la main) ;

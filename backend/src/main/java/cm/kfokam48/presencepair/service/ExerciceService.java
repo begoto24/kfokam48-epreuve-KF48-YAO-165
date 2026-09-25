@@ -23,13 +23,15 @@ public class ExerciceService {
     private final ExerciceRepository exercices;
     private final SessionCoursRepository sessions;
     private final EtudiantRepository etudiants;
+    private final AssignationService assignation;
     private final Clock horloge;
 
     public ExerciceService(ExerciceRepository exercices, SessionCoursRepository sessions,
-            EtudiantRepository etudiants, Clock horloge) {
+            EtudiantRepository etudiants, AssignationService assignation, Clock horloge) {
         this.exercices = exercices;
         this.sessions = sessions;
         this.etudiants = etudiants;
+        this.assignation = assignation;
         this.horloge = horloge;
     }
 
@@ -51,6 +53,7 @@ public class ExerciceService {
             throw new ErreurMetierException(CodeErreur.EXERCICE_DEJA_DEPOSE); // RG13
         }
         Exercice exercice = exercices.save(new Exercice(session, etudiant, lien.trim(), horloge.instant()));
+        assignation.assigner(exercice); // EF5 : tirage immédiat du relecteur (RG7), sinon reste DEPOSE (RG17)
         return ExerciceDeposeDto.de(exercice);
     }
 }

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Contrat imposé — Épreuve finale KFOKAM48
-  version: "1.1"
+  version: "1.2"
   description: |
     Les cinq opérations décrites ici doivent exister EXACTEMENT ainsi :
     mêmes chemins, mêmes verbes, mêmes codes de statut, même format d'erreur.
@@ -16,6 +16,14 @@ info:
     X-Etudiant-Id. Les opérations supplémentaires sont marquées
     « [ajout] » dans leur résumé.
     Les références RGx / EFx renvoient à docs/CAHIER_DES_CHARGES.md.
+
+    --- Version 1.2 (étape 3 : deux relecteurs par exercice) ---
+    Changement de besoin du client : chaque exercice est relu par deux pairs,
+    la note retenue est la moyenne des deux, provisoire si une seule est rendue.
+    Changements de forme : statut d'exercice PARTIELLEMENT_RELU ; champ
+    moyenneProvisoire ajouté au tableau ; ExerciceEtudiant renvoie la note
+    retenue (nombre), noteProvisoire et la liste des commentaires.
+    Les chemins, verbes et codes de statut ne changent pas.
 
 servers:
   - url: http://localhost:8080
@@ -110,9 +118,10 @@ paths:
       tags: [impose]
       summary: Un étudiant dépose le lien de son exercice
       description: |
-        EF4, EF5. Un relecteur est tiré au sort immédiatement parmi les
-        présents de la session, auteur exclu (RG5, RG7). S'il n'y en a aucun,
-        le statut renvoyé est DEPOSE (RG17), sinon EN_ATTENTE_RELECTURE.
+        EF4, EF5 (v1.2). Deux relecteurs différents sont tirés au sort
+        immédiatement parmi les présents de la session, auteur exclu (RG5, RG6,
+        RG7). S'il n'y en a aucun, le statut renvoyé est DEPOSE (RG17), sinon
+        EN_ATTENTE_RELECTURE.
         Erreurs 400 : LIEN_INVALIDE (RG18), CHAMP_MANQUANT,
         SESSION_INCONNUE, ETUDIANT_INCONNU (ou étudiant d'une autre promotion, RG19).
         Erreurs 409 : EXERCICE_DEJA_DEPOSE (RG13), SESSION_CLOTUREE (RG12).
@@ -148,7 +157,8 @@ paths:
       summary: Un relecteur rend sa note et son commentaire
       description: |
         EF7. Rend la relecture de façon DÉFINITIVE (RG10, contradiction Q10/Q15
-        tranchée en section 7 du cahier des charges). L'exercice passe RELU.
+        tranchée en section 7 du cahier des charges). L'exercice passe
+        PARTIELLEMENT_RELU à la première relecture rendue, RELU à la seconde (v1.2).
         La note doit être un entier JSON : 12.5 est refusé, pas arrondi (RG9).
         L'en-tête facultatif X-Etudiant-Id identifie l'étudiant qui envoie :
         s'il est l'auteur → 403 AUTO_RELECTURE (RG5) ; s'il n'est pas le
@@ -186,8 +196,11 @@ paths:
         EF8. Une ligne par étudiant de la promotion, triée par nom.
         presences : nombre de sessions de la promotion où il est présent.
         exercicesDeposes : nombre d'exercices déposés.
-        moyenne : moyenne des notes des relectures RENDUES reçues, arrondie
-        à 2 décimales, null s'il n'en a aucune (RG16). Calculée par le serveur.
+        moyenne (v1.2) : moyenne des NOTES RETENUES de ses exercices, arrondie
+        à 2 décimales, null s'il n'en a aucune. Note retenue d'un exercice =
+        moyenne de ses relectures RENDUES (RG16). Calculée par le serveur.
+        moyenneProvisoire (v1.2) : vrai si au moins une note retenue ne repose
+        que sur une relecture rendue sur deux.
         relecturesEnAttente : relectures qui lui sont assignées et pas encore
         rendues (A_FAIRE ou BROUILLON), sessions clôturées comprises (RG11).
         Erreur 400 : CHAMP_MANQUANT si promotionId est absent.
@@ -206,13 +219,14 @@ paths:
                 items:
                   type: object
                   required:
-                    [etudiantId, nom, presences, exercicesDeposes, moyenne, relecturesEnAttente]
+                    [etudiantId, nom, presences, exercicesDeposes, moyenne, moyenneProvisoire, relecturesEnAttente]
                   properties:
                     etudiantId: { type: integer, format: int64 }
                     nom: { type: string }
                     presences: { type: integer }
                     exercicesDeposes: { type: integer }
                     moyenne: { type: number, nullable: true }
+                    moyenneProvisoire: { type: boolean, description: "v1.2 - la moyenne contient une note provisoire" }
                     relecturesEnAttente: { type: integer }
         "400": { $ref: "#/components/responses/Erreur" }   # CHAMP_MANQUANT [ajout]
         "404": { $ref: "#/components/responses/Erreur" }   # PROMOTION_INCONNUE
@@ -501,7 +515,7 @@ components:
 
     StatutExercice:
       type: string
-      enum: [DEPOSE, EN_ATTENTE_RELECTURE, RELU]
+      enum: [DEPOSE, EN_ATTENTE_RELECTURE, PARTIELLEMENT_RELU, RELU]
       description: Voir docs/diagrammes/D4-etats-exercice.md
 
     StatutRelecture:
@@ -563,20 +577,29 @@ components:
         nom: { type: string, description: Nom de l'auteur }
         lien: { type: string }
         statut: { $ref: "#/components/schemas/StatutExercice" }
-        note: { type: integer, nullable: true }
+        note: { type: number, nullable: true, description: Note retenue (v1.2) }
 
     ExerciceEtudiant:
       type: object
-      required: [id, sessionId, sessionTitre, lien, statut]
-      description: Ne contient AUCUNE information sur le relecteur (RG8).
+      required: [id, sessionId, sessionTitre, lien, statut, noteProvisoire, commentaires]
+      description: Ne contient AUCUNE information sur les relecteurs (RG8).
       properties:
         id: { type: integer, format: int64 }
         sessionId: { type: integer, format: int64 }
         sessionTitre: { type: string }
         lien: { type: string }
         statut: { $ref: "#/components/schemas/StatutExercice" }
-        note: { type: integer, nullable: true, description: Renseignée seulement si RELU }
-        commentaire: { type: string, nullable: true, description: Renseigné seulement si RELU }
+        note:
+          type: number
+          nullable: true
+          description: Note retenue = moyenne des relectures rendues (v1.2) ; null si aucune
+        noteProvisoire:
+          type: boolean
+          description: Vrai si une seule relecture sur deux est rendue (v1.2)
+        commentaires:
+          type: array
+          items: { type: string }
+          description: Commentaires des relectures rendues, sans nom de relecteur (v1.2)
 
     Relecture:
       type: object

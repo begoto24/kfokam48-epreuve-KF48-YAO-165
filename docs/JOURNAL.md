@@ -54,6 +54,10 @@ Djoukoya-de-begoto Prince Malachie. Une entrée par étape, écrite au moment o�
 
 ## Étape 5 — Soumission
 
-**Fait :**
+**Fait :** vérifications finales sur tout l'historique. Les jalons sont dans l'ordre (`analyse` avant le premier commit de code, puis `v0.1` et `v1.0`) ; aucun `target/`, `node_modules/`, `dist/` ni `data/` n'a jamais été commité ; aucun secret ; les 6 issues ouvertes sont triées. `SOUMISSION.md` est rempli avec le hash complet de ce commit, le dernier du dépôt, et téléversé sur la plateforme après vérification du lien en navigation privée.
 
 **Ce que je referais autrement avec une journée de plus :**
+- Écrire des **tests d'interface** (React Testing Library) : le bug #30 n'a été trouvé qu'au test visuel, parce que tous mes tests visaient l'API.
+- Livrer les Should reportés, dans l'ordre du backlog : clôture (#14), présence manuelle (#13), brouillon (#11), remplacement du lien (#12).
+- Un `docker compose up` pour réduire le démarrage à une seule commande.
+- Vérifier plus tôt que la configuration de test hérite bien de la configuration principale : le faux vert découvert à l'étape 2 aurait pu masquer d'autres erreurs.

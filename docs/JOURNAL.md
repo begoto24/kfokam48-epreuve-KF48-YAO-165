@@ -16,11 +16,11 @@ Djoukoya-de-begoto Prince Malachie. Une entrée par étape, écrite au moment o�
 
 ## Étape 2 — Première version
 
-**Fait :**
+**Fait :** les 10 issues Must (#1 à #10) et le README (#28), chacune sur sa branche avec sa PR (#18 à #27, #29) qui ferme l'issue. Backend Spring Boot 4 avec 7 tables Flyway identiques à D2, les 5 opérations imposées et 5 opérations de lecture ; 130 tests (unitaires : RG1, RG2, RG5, RG7, RG9, RG16, RG18, RG20 ; intégration : chaque code HTTP des opérations imposées). Frontend React avec les trois écrans. J'ai traité #4 avant #3, parce que l'écran Formateur de #3 avait besoin du squelette React.
 
-**Bloqué :**
+**Bloqué :** environ 15 min sur un faux vert : `src/test/resources/application.properties` masquait toute la configuration principale, donc les tests tournaient sans `ddl-auto=validate` ni réglage Jackson. Je l'ai découvert parce que le test RG9 montrait `12.5` tronqué en `12`. Corrigé dans un commit `fix(test)` séparé (profil `test`). Environ 10 min sur les paquets de Spring Boot 4 et de Jackson 3 (MockMvc, exceptions Jackson), que j'ai vérifiés directement dans les jars.
 
-**IA :**
+**IA :** Claude a écrit le code issue par issue. Vérifications : un test par règle de gestion et par code HTTP du contrat, puis des appels réels (curl via le proxy Vite) pour chaque scénario d'erreur. Pour le tableau, j'ai calculé à la main les 8 lignes attendues sur les données de démo et je les ai comparées à la réponse de l'API sur une base neuve. J'ai aussi repris une erreur de conception de l'IA : un même code d'erreur doit renvoyer 400 ou 404 selon que l'identifiant est dans le corps ou dans l'URL.
 
 ---
 

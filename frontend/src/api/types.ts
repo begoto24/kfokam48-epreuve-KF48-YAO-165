@@ -10,3 +10,10 @@ export type Etudiant = {
   nom: string
   promotionId: number
 }
+
+export type SessionOuverte = {
+  id: number
+  code: string
+  ouvertureAt: string
+  expirationAt: string
+}

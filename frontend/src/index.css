@@ -1,0 +1,75 @@
+/* Le rendu visuel n'est pas noté : le strict nécessaire pour rester lisible sur téléphone (ENF1). */
+:root {
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1f2328;
+  background: #f6f8fa;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+nav button[aria-current='page'] {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+section {
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  margin: 8px 0;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  padding: 6px 8px;
+  max-width: 100%;
+}
+
+.erreur {
+  color: #cf222e;
+}
+
+.succes {
+  color: #1a7f37;
+}
+
+.tableau {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #d0d7de;
+  padding: 4px 8px;
+  text-align: left;
+}

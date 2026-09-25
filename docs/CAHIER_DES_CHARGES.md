@@ -111,16 +111,16 @@ L'objectif est que le formateur sache, sans calcul manuel, qui était là, qui a
 
 **Points que la demande ne tranche pas :**
 
-| Point | Réponse client (Qx) ou hypothèse | Décision retenue | Conséquence |
+| Point | Réponse client (Qx) ou hypothèse | Décision retenue | Pourquoi |
 |---|---|---|---|
-| **Le trou : quand le relecteur est-il tiré au sort, et que se passe-t-il si personne n'est éligible ?** | Q7 dit « parmi les présents », Q12 autorise le dépôt après la séance. Personne n'a demandé ce qui se passe si l'auteur est le seul présent, ou s'il dépose avant l'arrivée des autres | **Ma décision :** le tirage a lieu **au moment du dépôt**. S'il n'y a aucun candidat, l'exercice reste `DEPOSE` et il est assigné dès qu'un présent éligible apparaît (RG17) | Une présence (par code ou manuelle) déclenche l'assignation des exercices en attente de la session. Statut supplémentaire `DEPOSE` dans le cycle de vie (D4) |
-| Qu'est-ce que « la fin de la session » (Q3) ? | La demande ne définit pas d'heure de fin, seulement une expiration du code (Q2) et une clôture (Q10, Q12) | La présence se termine à l'expiration du code **ou** à la clôture ; le reste de la vie de la session (dépôts, relectures) se termine à la clôture | RG2, RG12 ; champ `cloturee_at` sur la session |
-| Qu'est-ce que « commencer à relire » (Q13) ? | Rien ne le définit, le système ne sait pas si le relecteur a ouvert le lien | La relecture est commencée dès qu'un **brouillon** est enregistré | RG14 ; statut `BROUILLON` |
-| Faut-il être présent pour déposer un exercice ? | Non abordé | Non : un étudiant absent peut déposer (Q12 évoque ceux qui déposent plus tard). En revanche, il ne peut pas être tiré comme relecteur (Q7) | Pas de contrôle de présence au dépôt |
-| Le blocage de Q4 est-il par session ou global ? | « Bloquez-le » | Par étudiant, toutes sessions confondues ; seuls les **codes inconnus** comptent | Table `tentative_code` ; RG4 ; réponse `429` ajoutée au contrat |
-| Qui envoie la relecture, sans authentification (Q1) ? | Le contrat prévoit `403` pour l'auto-relecture mais pas d'identité | L'écran envoie l'étudiant sélectionné dans l'en-tête facultatif `X-Etudiant-Id`. S'il est l'auteur → `403 AUTO_RELECTURE` ; s'il n'est pas le relecteur assigné → `403 RELECTEUR_NON_ASSIGNE` | En-tête documenté dans le contrat ; le corps imposé n'est pas modifié |
-| Que voit le tableau de « sa présence à chaque session » (Q16) ? | Le contrat imposé ne renvoie qu'un nombre `presences` | Le tableau affiche le **nombre** ; le détail par session est dans l'écran « détail de session » (EF15) | Opération `GET /api/sessions/{id}/presences` ajoutée |
-| Une référence inconnue dans un corps de requête (étudiant, session, promotion) | Le contrat imposé ne prévoit que `400` pour ces opérations | `400` avec un code explicite (`ETUDIANT_INCONNU`, `SESSION_INCONNUE`, `PROMOTION_INCONNUE`) : la requête est invalide | Je n'ajoute pas de `404` aux opérations imposées, sauf pour un identifiant de **chemin** (`/api/relectures/{id}` → `404 RELECTURE_INCONNUE`) |
+| **Le trou : quand le relecteur est-il tiré au sort, et que se passe-t-il si personne n'est éligible ?** | Q7 dit « parmi les présents », Q12 autorise le dépôt après la séance. Personne n'a demandé ce qui se passe si l'auteur est le seul présent, ou s'il dépose avant l'arrivée des autres | **Ma décision :** le tirage a lieu **au moment du dépôt**. S'il n'y a aucun candidat, l'exercice reste `DEPOSE` et il est assigné dès qu'un présent éligible marque sa présence (RG17). Conséquence : statut `DEPOSE` dans le cycle de vie (D4) | C'est mon idée : tirer au dépôt donne tout de suite un relecteur dans le cas normal, et la file d'attente évite de refuser un dépôt légitime (Q12) ou de violer Q5/Q7 en tirant un absent ou l'auteur |
+| Qu'est-ce que « la fin de la session » (Q3) ? | La demande ne définit pas d'heure de fin, seulement une expiration du code (Q2) et une clôture (Q10, Q12) | La présence se termine à l'expiration du code **ou** à la clôture ; les dépôts et relectures se terminent à la clôture (RG2, RG12, champ `cloturee_at`) | Q2 dit « après, il ne marche plus » : le code est la seule preuve de présence dans la salle ; Q10 et Q12 citent explicitement la clôture comme seule borne pour le reste |
+| Qu'est-ce que « commencer à relire » (Q13) ? | Rien ne le définit, le système ne sait pas si le relecteur a ouvert le lien | La relecture est commencée dès qu'un **brouillon** est enregistré (RG14, statut `BROUILLON`) | C'est le seul événement que le système observe ; ouvrir un lien externe n'est pas traçable |
+| Faut-il être présent pour déposer un exercice ? | Non abordé | Non : un étudiant absent peut déposer ; en revanche il ne peut pas être tiré comme relecteur | Q12 vise justement ceux qui déposent plus tard ; Q7 ne parle que du choix du relecteur |
+| Le blocage de Q4 est-il par session ou global ? | « Bloquez-le » | Par étudiant, toutes sessions confondues ; seuls les **codes inconnus** comptent (RG4, table `tentative_code`, réponse `429`) | Q4 vise la devinette de codes : un code expiré prouve que l'étudiant connaît le vrai code, ce n'est pas une devinette. `429 Too Many Requests` est le code HTTP standard de ce cas |
+| Qui envoie la relecture, sans authentification (Q1) ? | Le contrat prévoit `403` pour l'auto-relecture mais pas d'identité | L'écran envoie l'étudiant sélectionné dans l'en-tête facultatif `X-Etudiant-Id`. S'il est l'auteur → `403 AUTO_RELECTURE` ; s'il n'est pas le relecteur assigné → `403 RELECTEUR_NON_ASSIGNE` | Le corps imposé `{ note, commentaire }` ne peut pas être modifié ; un en-tête facultatif ajoute l'identité sans casser le contrat |
+| Que voit le tableau de « sa présence à chaque session » (Q16) ? | Le contrat imposé ne renvoie qu'un nombre `presences` | Le tableau affiche le **nombre** ; le détail par session est dans l'écran « détail de session » (EF15, `GET /api/sessions/{id}/presences`) | Je ne peux pas changer la réponse imposée du tableau ; le détail passe donc par une opération ajoutée |
+| Une référence inconnue dans un corps de requête (étudiant, session, promotion) | Le contrat imposé ne prévoit que `400` pour ces opérations | `400` avec un code explicite (`ETUDIANT_INCONNU`, `SESSION_INCONNUE`, `PROMOTION_INCONNUE`) ; `404` seulement pour un identifiant de **chemin** (`/api/relectures/{id}` → `404 RELECTURE_INCONNUE`) | Un identifiant inconnu dans le corps rend la requête invalide (400) ; une ressource de l'URL introuvable est un 404. Je reste ainsi dans les codes prévus par le contrat |
 
 **Contradictions relevées :**
 
@@ -153,7 +153,7 @@ L'objectif est que le formateur sache, sans calcul manuel, qui était là, qui a
 | F3 | Couche API dédiée, chargement/erreur, pas de règle dupliquée | Un module `src/api/` unique ; états `chargement` / `erreur` sur chaque appel ; la moyenne est affichée telle que l'API la renvoie |
 
 **Que je m'impose :**
-- Git : une branche par issue (`feat/12-marquer-presence`), une PR par branche, `Closes #n` dans la PR ; `main` ne reçoit que des merges de PR ; messages de commit au format `type(portée): résumé (RGx)` ;
+- Git : une branche par issue (`feat/5-marquer-presence`), une PR par branche, `Closes #n` dans le commit final et dans la PR ; `main` ne reçoit que des merges de PR ; messages de commit au format `type(portée): résumé (RGx)` ;
 - base de test en mémoire, indépendante de toute base locale ;
 - aucune donnée sensible : aucun secret, aucun mot de passe (Q1).
 
@@ -186,7 +186,7 @@ L'objectif est que le formateur sache, sans calcul manuel, qui était là, qui a
 - ses critères d'acceptation sont vérifiés (par un test automatique quand il touche une règle `RGx`, sinon à la main) ;
 - les codes HTTP et le format d'erreur correspondent au contrat ;
 - le build backend (`./mvnw verify`) et, s'il est concerné, le build frontend (`npm run build`) passent ;
-- la PR est fusionnée dans `main` et l'issue fermée par `Closes #n` ;
+- le dernier commit de la branche et la PR portent `Closes #n` ; la PR est fusionnée dans `main`, ce qui ferme l'issue ;
 - la documentation touchée (contrat, diagrammes, ce document) est à jour.
 
 ---

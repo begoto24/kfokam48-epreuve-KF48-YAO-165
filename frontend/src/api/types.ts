@@ -24,3 +24,20 @@ export type Presence = {
   etudiantId: number
   source: 'ETUDIANT' | 'FORMATEUR'
 }
+
+export type Session = {
+  id: number
+  titre: string
+  promotionId: number
+  ouvertureAt: string
+  expirationAt: string
+  cloturee: boolean
+  clotureeAt: string | null
+}
+
+export type StatutExercice = 'DEPOSE' | 'EN_ATTENTE_RELECTURE' | 'RELU'
+
+export type ExerciceDepose = {
+  id: number
+  statut: StatutExercice
+}

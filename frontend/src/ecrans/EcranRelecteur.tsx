@@ -1,10 +1,11 @@
 import { listerRelectures } from '../api/relectures'
 import type { Etudiant } from '../api/types'
 import { Etat } from '../composants/Etat'
+import { FormulaireRelecture } from '../composants/FormulaireRelecture'
 import { LIBELLE_STATUT_RELECTURE } from '../composants/libelles'
 import { useChargement } from '../hooks/useChargement'
 
-/** EF6 : les exercices que l'étudiant doit relire. */
+/** EF6, EF7 : les exercices à relire et la relecture elle-même. */
 export function EcranRelecteur({ etudiant }: { etudiant: Etudiant }) {
   const relectures = useChargement(() => listerRelectures(etudiant.id), [etudiant.id])
 
@@ -22,10 +23,14 @@ export function EcranRelecteur({ etudiant }: { etudiant: Etudiant }) {
             <a href={r.lien} target="_blank" rel="noreferrer">
               {r.lien}
             </a>
-            {r.statut === 'RENDUE' && (
+            {r.statut === 'RENDUE' ? (
               <p>
                 Note rendue : {r.note}/20 — {r.commentaire}
               </p>
+            ) : (
+              !r.sessionCloturee && (
+                <FormulaireRelecture relecture={r} etudiantId={etudiant.id} onRendue={relectures.recharger} />
+              )
             )}
           </li>
         ))}

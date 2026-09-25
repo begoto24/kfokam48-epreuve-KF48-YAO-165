@@ -16,4 +16,14 @@ public interface RelectureRepository extends JpaRepository<Relecture, Long> {
             where r.exercice.session.id = :sessionId
             group by r.relecteur.id""")
     List<Object[]> chargesParRelecteur(@Param("sessionId") Long sessionId);
+
+    /** EF6 : les relectures d'un étudiant, celles à faire d'abord, les plus récentes en tête. */
+    @Query("""
+            select r from Relecture r
+            join fetch r.exercice e
+            join fetch e.session
+            where r.relecteur.id = :relecteurId
+            order by case when r.statut = cm.kfokam48.presencepair.domain.StatutRelecture.RENDUE then 1 else 0 end,
+                     r.assigneeAt desc""")
+    List<Relecture> assigneesA(@Param("relecteurId") Long relecteurId);
 }

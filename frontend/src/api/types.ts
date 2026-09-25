@@ -61,5 +61,7 @@ export type LigneTableau = {
   presences: number
   exercicesDeposes: number
   moyenne: number | null
+  /** v1.2 : la moyenne contient au moins une note provisoire (une relecture rendue sur deux). */
+  moyenneProvisoire: boolean
   relecturesEnAttente: number
 }

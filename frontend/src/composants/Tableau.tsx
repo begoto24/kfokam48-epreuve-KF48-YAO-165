@@ -2,7 +2,10 @@ import { chargerTableau } from '../api/tableau'
 import { useChargement } from '../hooks/useChargement'
 import { Etat } from './Etat'
 
-/** EF8 : la moyenne est affichée telle que l'API la renvoie, jamais recalculée ici (F3, RG16). */
+/**
+ * EF8 : la moyenne est affichée telle que l'API la renvoie, jamais recalculée ici (F3, RG16).
+ * « provisoire » vient aussi de l'API (moyenneProvisoire, contrat v1.2).
+ */
 export function Tableau({ promotionId }: { promotionId: number }) {
   const tableau = useChargement(() => chargerTableau(promotionId), [promotionId])
 
@@ -31,7 +34,10 @@ export function Tableau({ promotionId }: { promotionId: number }) {
                   <td>{l.nom}</td>
                   <td>{l.presences}</td>
                   <td>{l.exercicesDeposes}</td>
-                  <td>{l.moyenne ?? '—'}</td>
+                  <td>
+                    {l.moyenne ?? '—'}
+                    {l.moyenneProvisoire && <em> (provisoire)</em>}
+                  </td>
                   <td className={l.relecturesEnAttente > 0 ? 'erreur' : undefined}>{l.relecturesEnAttente}</td>
                 </tr>
               ))}

@@ -54,3 +54,12 @@ export type Relecture = {
   commentaire: string | null
   sessionCloturee: boolean
 }
+
+export type LigneTableau = {
+  etudiantId: number
+  nom: string
+  presences: number
+  exercicesDeposes: number
+  moyenne: number | null
+  relecturesEnAttente: number
+}

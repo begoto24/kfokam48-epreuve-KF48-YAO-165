@@ -41,3 +41,16 @@ export type ExerciceDepose = {
   id: number
   statut: StatutExercice
 }
+
+export type StatutRelecture = 'A_FAIRE' | 'BROUILLON' | 'RENDUE'
+
+export type Relecture = {
+  id: number
+  exerciceId: number
+  sessionTitre: string
+  lien: string
+  statut: StatutRelecture
+  note: number | null
+  commentaire: string | null
+  sessionCloturee: boolean
+}

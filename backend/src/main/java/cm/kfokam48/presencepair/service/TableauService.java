@@ -1,7 +1,6 @@
 package cm.kfokam48.presencepair.service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +8,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cm.kfokam48.presencepair.domain.NoteRetenue;
 import cm.kfokam48.presencepair.exception.CodeErreur;
 import cm.kfokam48.presencepair.exception.ErreurMetierException;
 import cm.kfokam48.presencepair.repository.EtudiantRepository;
@@ -37,24 +37,30 @@ public class TableauService {
         }
         Map<Long, Number> presences = parEtudiant(tableau.presences(promotionId));
         Map<Long, Number> exercices = parEtudiant(tableau.exercicesDeposes(promotionId));
-        Map<Long, Number> moyennes = parEtudiant(tableau.moyennes(promotionId));
+        Map<Long, List<NoteRetenue>> notes = notesRetenues(tableau.notesRetenuesParExercice(promotionId));
         Map<Long, Number> enAttente = parEtudiant(tableau.relecturesEnAttente(promotionId));
 
         return etudiants.findByPromotionIdOrderByNomAsc(promotionId).stream()
-                .map(e -> new LigneTableauDto(e.getId(), e.getNom(),
-                        compte(presences, e.getId()),
-                        compte(exercices, e.getId()),
-                        arrondi(moyennes.get(e.getId())),
-                        compte(enAttente, e.getId())))
+                .map(e -> {
+                    NoteRetenue.Moyenne moyenne = NoteRetenue.moyenne(notes.getOrDefault(e.getId(), List.of()));
+                    return new LigneTableauDto(e.getId(), e.getNom(),
+                            compte(presences, e.getId()),
+                            compte(exercices, e.getId()),
+                            moyenne.valeur(),
+                            moyenne.provisoire(),
+                            compte(enAttente, e.getId()));
+                })
                 .toList();
     }
 
-    /** RG16 : arrondi à 2 décimales, null sans note. */
-    static Double arrondi(Number moyenne) {
-        if (moyenne == null) {
-            return null;
+    /** RG16 (v2) : note retenue de chaque exercice, regroupée par auteur. */
+    private static Map<Long, List<NoteRetenue>> notesRetenues(List<Object[]> lignes) {
+        Map<Long, List<NoteRetenue>> resultat = new HashMap<>();
+        for (Object[] ligne : lignes) {
+            NoteRetenue note = NoteRetenue.de(((Number) ligne[1]).doubleValue(), ((Number) ligne[2]).longValue());
+            resultat.computeIfAbsent((Long) ligne[0], id -> new ArrayList<>()).add(note);
         }
-        return BigDecimal.valueOf(moyenne.doubleValue()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        return resultat;
     }
 
     private static long compte(Map<Long, Number> valeurs, Long etudiantId) {

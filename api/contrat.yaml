@@ -25,6 +25,13 @@ info:
     retenue (nombre), noteProvisoire et la liste des commentaires.
     Les chemins, verbes et codes de statut ne changent pas.
 
+    --- Livraison v1.0 ---
+    Les opérations dont le résumé porte « NON LIVRÉ en v1.0 » sont spécifiées
+    mais pas implémentées (backlog trié : issues #11 à #14 reportées, #15 et #17
+    sorties du périmètre à l'étape 3). Il en va de même de la réponse 429 de
+    POST /api/presences (RG4, issue #15). Les 5 opérations imposées et toutes
+    les autres opérations sont livrées.
+
 servers:
   - url: http://localhost:8080
 
@@ -287,7 +294,7 @@ paths:
   /api/sessions/{id}/presences:
     get:
       tags: [ajout]
-      summary: "[ajout] Présents d'une session, avec leur source (EF15, RG15)"
+      summary: "[ajout] Présents d'une session, avec leur source (EF15, RG15) — NON LIVRÉ en v1.0, issue #17"
       parameters:
         - $ref: "#/components/parameters/IdChemin"
       responses:
@@ -302,7 +309,7 @@ paths:
         "500": { $ref: "#/components/responses/Erreur" }
     post:
       tags: [ajout]
-      summary: "[ajout] Le formateur ajoute une présence à la main (EF11, RG15)"
+      summary: "[ajout] Le formateur ajoute une présence à la main (EF11, RG15) — NON LIVRÉ en v1.0, issue #13"
       description: |
         Possible même après l'expiration du code, jusqu'à la clôture.
         La présence créée porte source = FORMATEUR. Déclenche l'assignation
@@ -332,7 +339,7 @@ paths:
   /api/sessions/{id}/exercices:
     get:
       tags: [ajout]
-      summary: "[ajout] Exercices d'une session avec leur statut — les « en attente » sont visibles (EF15, RG11)"
+      summary: "[ajout] Exercices d'une session avec leur statut — les « en attente » sont visibles (EF15, RG11) — NON LIVRÉ en v1.0, issue #17"
       parameters:
         - $ref: "#/components/parameters/IdChemin"
       responses:
@@ -349,7 +356,7 @@ paths:
   /api/sessions/{id}/cloture:
     post:
       tags: [ajout]
-      summary: "[ajout] Le formateur clôture une session (EF12)"
+      summary: "[ajout] Le formateur clôture une session (EF12) — NON LIVRÉ en v1.0, issue #14"
       description: |
         Après la clôture : plus de présence par code (410), plus de dépôt,
         de remplacement de lien, de brouillon ni de relecture (409 SESSION_CLOTUREE).
@@ -368,7 +375,7 @@ paths:
   /api/exercices/{id}:
     put:
       tags: [ajout]
-      summary: "[ajout] L'étudiant remplace le lien de son exercice (EF10, RG14)"
+      summary: "[ajout] L'étudiant remplace le lien de son exercice (EF10, RG14) — NON LIVRÉ en v1.0, issue #12"
       parameters:
         - $ref: "#/components/parameters/IdChemin"
       requestBody:
@@ -433,7 +440,7 @@ paths:
   /api/relectures/{id}/brouillon:
     put:
       tags: [ajout]
-      summary: "[ajout] Le relecteur enregistre un brouillon modifiable (EF9, RG10)"
+      summary: "[ajout] Le relecteur enregistre un brouillon modifiable (EF9, RG10) — NON LIVRÉ en v1.0, issue #11"
       description: |
         Note et commentaire facultatifs dans un brouillon ; s'ils sont
         présents, la note suit RG9. Le brouillon peut être réécrit tant que

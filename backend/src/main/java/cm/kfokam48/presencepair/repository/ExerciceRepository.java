@@ -12,6 +12,9 @@ public interface ExerciceRepository extends JpaRepository<Exercice, Long> {
 
     boolean existsBySessionIdAndEtudiantId(Long sessionId, Long etudiantId);
 
+    @Query("select e from Exercice e join fetch e.session where e.etudiant.id = :etudiantId order by e.deposeAt desc")
+    List<Exercice> deLAuteur(@Param("etudiantId") Long etudiantId);
+
     /** RG17 (v2) : exercices de la session qui n'ont pas encore leurs deux relecteurs. */
     @Query("""
             select e from Exercice e

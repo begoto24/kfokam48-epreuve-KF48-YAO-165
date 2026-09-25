@@ -65,3 +65,15 @@ export type LigneTableau = {
   moyenneProvisoire: boolean
   relecturesEnAttente: number
 }
+
+/** Un exercice vu par son auteur : jamais d'information sur les relecteurs (RG8). */
+export type MonExercice = {
+  id: number
+  sessionId: number
+  sessionTitre: string
+  lien: string
+  statut: StatutExercice
+  note: number | null
+  noteProvisoire: boolean
+  commentaires: string[]
+}

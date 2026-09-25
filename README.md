@@ -48,7 +48,7 @@ Pour repartir de données neuves : arrêter le backend et supprimer le dossier `
 
 1. **Formateur** : choisir *KFOKAM48 - Promotion 2026*, ouvrir une session → un code s'affiche ; le tableau est en dessous.
 2. **Étudiant** : choisir la promotion puis un nom (pas de mot de passe), par exemple *Bello Ibrahim* ; saisir le code, puis déposer un lien dans la nouvelle session. Faire de même avec *Kamga Sandrine* et *Mbarga Yannick* (présence seulement) : l'exercice de Bello reçoit ses **deux relecteurs**.
-3. **Relecteur** : choisir *Kamga Sandrine*, rendre une note (essayer d'abord  ou  pour voir l'erreur) ; la note de Bello est alors **provisoire**. Rendre la seconde avec *Mbarga Yannick* : elle devient définitive.
+3. **Relecteur** : choisir *Kamga Sandrine*, rendre une note (essayer d'abord `12.5` ou `21` pour voir l'erreur) ; la note de Bello est alors **provisoire**. Rendre la seconde avec *Mbarga Yannick* : elle devient définitive.
 4. **Étudiant** *Bello Ibrahim* → *Mes exercices et mes notes* ; **Formateur** → *Actualiser* le tableau.
 
 ## Tests

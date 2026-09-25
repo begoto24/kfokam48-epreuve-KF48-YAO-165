@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cm.kfokam48.presencepair.service.PromotionService;
 import cm.kfokam48.presencepair.web.dto.EtudiantDto;
 import cm.kfokam48.presencepair.web.dto.PromotionDto;
+import cm.kfokam48.presencepair.web.dto.SessionDto;
 
 @RestController
 @RequestMapping("/api/promotions")
@@ -29,5 +30,10 @@ public class PromotionController {
     @GetMapping("/{id}/etudiants")
     public List<EtudiantDto> etudiants(@PathVariable Long id) {
         return service.etudiants(id);
+    }
+
+    @GetMapping("/{id}/sessions")
+    public List<SessionDto> sessions(@PathVariable Long id) {
+        return service.sessions(id);
     }
 }

@@ -23,10 +23,7 @@ export function SelecteurEtudiant({ etudiant, promotionId, onPromotion, onEtudia
       <h2>Qui es-tu ?</h2>
       <SelecteurPromotion
         promotionId={promotionId}
-        onChange={(id) => {
-          onPromotion(id)
-          onEtudiant(undefined)
-        }}
+        onChange={onPromotion}
       />
       {promotionId && (
         <label>

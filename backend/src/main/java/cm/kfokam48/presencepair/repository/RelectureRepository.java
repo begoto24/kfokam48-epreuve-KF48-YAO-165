@@ -23,6 +23,14 @@ public interface RelectureRepository extends JpaRepository<Relecture, Long> {
 
     long countByExerciceIdAndStatut(Long exerciceId, StatutRelecture statut);
 
+    /** EF14 : relectures RENDUES des exercices d'un auteur, dans l'ordre de rendu. */
+    @Query("""
+            select r from Relecture r
+            where r.exercice.etudiant.id = :auteurId
+              and r.statut = cm.kfokam48.presencepair.domain.StatutRelecture.RENDUE
+            order by r.rendueAt""")
+    List<Relecture> rendues(@Param("auteurId") Long auteurId);
+
     /** EF6 : les relectures d'un étudiant, celles à faire d'abord, les plus récentes en tête. */
     @Query("""
             select r from Relecture r

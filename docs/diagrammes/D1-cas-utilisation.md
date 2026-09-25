@@ -1,5 +1,7 @@
 # D1 — Cas d'utilisation
 
+> **Version 2 (étape 3)** : UC14 tire désormais **deux** relecteurs par exercice ; UC5 et UC15 sont **sortis du périmètre** (sacrifice de l'étape 3), ils restent dessinés en pointillés pour mémoire.
+
 Mermaid n'a pas de diagramme de cas d'utilisation natif : les acteurs sont représentés à gauche et à droite, les cas d'utilisation par des ovales à l'intérieur du cadre du système. Les liens `include` et `extend` suivent la notation UML.
 
 Le **relecteur** est un étudiant dans un rôle particulier (cahier des charges, section 2) : il hérite de l'acteur Étudiant.
@@ -18,7 +20,7 @@ flowchart LR
         UC2(["UC2 Ajouter une présence<br/>à la main — EF11"])
         UC3(["UC3 Clôturer une session — EF12"])
         UC4(["UC4 Consulter le tableau<br/>de la promotion — EF8"])
-        UC5(["UC5 Voir le détail<br/>d'une session — EF15"])
+        UC5(["UC5 Voir le détail<br/>d'une session — EF15<br/>(hors périmètre v2)"])
 
         UC6(["UC6 Choisir son nom<br/>dans la liste — EF2"])
         UC7(["UC7 Marquer sa présence<br/>avec un code — EF3"])
@@ -30,8 +32,8 @@ flowchart LR
         UC12(["UC12 Enregistrer un brouillon<br/>de relecture — EF9"])
         UC13(["UC13 Rendre sa relecture<br/>définitivement — EF7"])
 
-        UC14(["UC14 Assigner un relecteur<br/>au hasard — EF5"])
-        UC15(["UC15 Bloquer après<br/>5 codes faux — EF13"])
+        UC14(["UC14 Assigner deux relecteurs<br/>au hasard — EF5 (v2)"])
+        UC15(["UC15 Bloquer après<br/>5 codes faux — EF13<br/>(hors périmètre v2)"])
     end
 
     F --- UC1
@@ -61,6 +63,9 @@ flowchart LR
 
     UC14 --- S
     UC15 --- S
+
+    classDef horsPerimetre stroke-dasharray: 5 5,color:#888
+    class UC5,UC15 horsPerimetre
 ```
 
 ## Lecture
@@ -69,9 +74,10 @@ flowchart LR
 |---|---|---|
 | Formateur | UC1, UC4 | Must |
 | Formateur | UC2, UC3 | Should |
-| Formateur | UC5 | Could |
+| Formateur | UC5 | ~~Could~~ Won't (v2) |
 | Étudiant | UC6, UC7, UC8 | Must |
-| Étudiant | UC9, UC10 | Should |
+| Étudiant | UC9 | Should |
+| Étudiant | UC10 | Must (v2) |
 | Relecteur | UC11, UC13 | Must |
 | Relecteur | UC12 | Should |
-| Système | UC14 (Must), UC15 (Should) | — |
+| Système | UC14 (Must), UC15 (~~Should~~ Won't v2) | — |

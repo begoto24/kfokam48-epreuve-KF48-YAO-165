@@ -4,8 +4,10 @@ package cm.kfokam48.presencepair.domain;
 public enum StatutExercice {
     /** Déposé, aucun relecteur éligible pour l'instant (RG17). */
     DEPOSE,
-    /** Un relecteur est assigné, la relecture n'est pas rendue (RG11). */
+    /** Au moins un relecteur est assigné, aucune relecture n'est rendue (RG11). */
     EN_ATTENTE_RELECTURE,
-    /** La relecture est rendue : état final (RG10). */
+    /** Une relecture rendue sur deux : note retenue provisoire (RG16, v2). */
+    PARTIELLEMENT_RELU,
+    /** Les deux relectures sont rendues : état final (RG10, RG16). */
     RELU
 }

@@ -19,6 +19,9 @@ import jakarta.persistence.Table;
 @Table(name = "exercice")
 public class Exercice {
 
+    /** RG6 (v2) : chaque exercice est relu par deux pairs différents. */
+    public static final int RELECTEURS_PAR_EXERCICE = 2;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -56,12 +59,20 @@ public class Exercice {
         this.statut = StatutExercice.DEPOSE;
     }
 
+    /** Premier relecteur assigné : DEPOSE devient EN_ATTENTE_RELECTURE ; les autres statuts ne changent pas. */
     public void marquerEnAttenteDeRelecture() {
-        this.statut = StatutExercice.EN_ATTENTE_RELECTURE;
+        if (this.statut == StatutExercice.DEPOSE) {
+            this.statut = StatutExercice.EN_ATTENTE_RELECTURE;
+        }
     }
 
-    public void marquerRelu() {
-        this.statut = StatutExercice.RELU;
+    /** RG16 (v2) : une relecture rendue sur deux donne une note provisoire, deux donnent la note définitive. */
+    public void prendreEnCompteRelecturesRendues(long rendues) {
+        if (rendues >= RELECTEURS_PAR_EXERCICE) {
+            this.statut = StatutExercice.RELU;
+        } else if (rendues > 0) {
+            this.statut = StatutExercice.PARTIELLEMENT_RELU;
+        }
     }
 
     public void remplacerLien(String nouveauLien, Instant instant) {

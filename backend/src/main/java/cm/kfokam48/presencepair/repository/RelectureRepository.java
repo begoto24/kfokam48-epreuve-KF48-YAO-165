@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import cm.kfokam48.presencepair.domain.Relecture;
+import cm.kfokam48.presencepair.domain.StatutRelecture;
 
 public interface RelectureRepository extends JpaRepository<Relecture, Long> {
 
@@ -16,6 +17,11 @@ public interface RelectureRepository extends JpaRepository<Relecture, Long> {
             where r.exercice.session.id = :sessionId
             group by r.relecteur.id""")
     List<Object[]> chargesParRelecteur(@Param("sessionId") Long sessionId);
+
+    @Query("select r.relecteur.id from Relecture r where r.exercice.id = :exerciceId")
+    List<Long> relecteursDe(@Param("exerciceId") Long exerciceId);
+
+    long countByExerciceIdAndStatut(Long exerciceId, StatutRelecture statut);
 
     /** EF6 : les relectures d'un étudiant, celles à faire d'abord, les plus récentes en tête. */
     @Query("""

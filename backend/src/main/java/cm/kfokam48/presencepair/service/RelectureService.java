@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cm.kfokam48.presencepair.domain.Relecture;
+import cm.kfokam48.presencepair.domain.StatutRelecture;
 import cm.kfokam48.presencepair.exception.CodeErreur;
 import cm.kfokam48.presencepair.exception.ErreurMetierException;
 import cm.kfokam48.presencepair.repository.EtudiantRepository;
@@ -37,14 +38,16 @@ public class RelectureService {
     }
 
     /**
-     * EF7 : le relecteur rend sa relecture ; elle devient définitive (RG10) et l'exercice passe RELU.
+     * EF7 : le relecteur rend sa relecture ; elle devient définitive (RG10). L'exercice passe
+     * PARTIELLEMENT_RELU à la première relecture rendue, RELU à la seconde (RG16, v2).
      *
      * @param etudiantCourant étudiant sélectionné dans l'écran (en-tête X-Etudiant-Id), facultatif
      */
     public RelectureDto rendre(Long relectureId, int note, String commentaire, Long etudiantCourant) {
         Relecture relecture = modifiablePar(relectureId, etudiantCourant);
         relecture.rendre(note, commentaire.trim(), horloge.instant());
-        relecture.getExercice().marquerRelu();
+        relecture.getExercice().prendreEnCompteRelecturesRendues(
+                relectures.countByExerciceIdAndStatut(relecture.getExercice().getId(), StatutRelecture.RENDUE));
         return RelectureDto.de(relecture);
     }
 

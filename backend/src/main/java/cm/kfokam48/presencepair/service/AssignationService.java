@@ -2,8 +2,11 @@ package cm.kfokam48.presencepair.service;
 
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import cm.kfokam48.presencepair.domain.Exercice;
 import cm.kfokam48.presencepair.domain.Relecture;
 import cm.kfokam48.presencepair.domain.SessionCours;
-import cm.kfokam48.presencepair.domain.StatutExercice;
 import cm.kfokam48.presencepair.domain.TirageRelecteur;
 import cm.kfokam48.presencepair.repository.EtudiantRepository;
 import cm.kfokam48.presencepair.repository.ExerciceRepository;
@@ -19,7 +21,7 @@ import cm.kfokam48.presencepair.repository.PresenceRepository;
 import cm.kfokam48.presencepair.repository.RelectureRepository;
 import cm.kfokam48.presencepair.repository.SessionCoursRepository;
 
-/** EF5 : le système confie chaque exercice à un pair présent (RG5, RG6, RG7, RG17). */
+/** EF5 (v2) : le système confie chaque exercice à DEUX pairs présents différents (RG5, RG6, RG7, RG17). */
 @Service
 @Transactional
 public class AssignationService {
@@ -43,34 +45,43 @@ public class AssignationService {
         this.horloge = horloge;
     }
 
-    /** Tire un relecteur pour un exercice qui vient d'être déposé. Sans candidat, il reste DEPOSE (RG17). */
+    /** Tire les relecteurs d'un exercice qui vient d'être déposé. Sans candidat, il reste DEPOSE (RG17). */
     public void assigner(Exercice exercice) {
         verrouiller(exercice.getSession());
-        tirer(exercice);
+        completer(exercice);
     }
 
     /**
-     * RG17 : appelé à chaque nouvelle présence, assigne les exercices restés sans relecteur.
-     * La liste est lue APRÈS le verrou : une présence simultanée qui vient d'assigner un exercice
-     * a déjà validé sa transaction, l'exercice n'est donc plus DEPOSE (bug #32).
+     * RG17 : appelé à chaque nouvelle présence, complète les exercices qui n'ont pas encore leurs deux
+     * relecteurs. La liste est lue APRÈS le verrou : une présence simultanée a déjà validé ses
+     * assignations, elles sont donc prises en compte (bug #32).
      */
     public void assignerEnAttente(SessionCours session) {
         verrouiller(session);
-        exercices.findBySessionIdAndStatutOrderByDeposeAtAsc(session.getId(), StatutExercice.DEPOSE)
-                .forEach(this::tirer);
+        exercices.aCompleter(session.getId(), Exercice.RELECTEURS_PAR_EXERCICE).forEach(this::completer);
     }
 
-    private void tirer(Exercice exercice) {
-        if (exercice.getStatut() != StatutExercice.DEPOSE || exercice.getSession().estCloturee()) {
+    /** Tire autant de relecteurs que nécessaire pour atteindre deux, tant qu'il reste des candidats. */
+    private void completer(Exercice exercice) {
+        if (exercice.getSession().estCloturee()) {
             return;
         }
         Long sessionId = exercice.getSession().getId();
-        tirage.choisir(exercice.getEtudiant().getId(), presences.idsDesPresents(sessionId), charges(sessionId))
-                .ifPresent(relecteurId -> {
-                    relectures.save(new Relecture(exercice, etudiants.getReferenceById(relecteurId),
-                            horloge.instant()));
-                    exercice.marquerEnAttenteDeRelecture();
-                });
+        List<Long> presents = presences.idsDesPresents(sessionId);
+        Map<Long, Long> charges = charges(sessionId);
+        List<Long> relecteurs = new ArrayList<>(relectures.relecteursDe(exercice.getId()));
+
+        while (relecteurs.size() < Exercice.RELECTEURS_PAR_EXERCICE) {
+            Optional<Long> tire = tirage.choisir(exercice.getEtudiant().getId(), presents, charges, relecteurs);
+            if (tire.isEmpty()) {
+                return; // pas assez de pairs éligibles : le reste sera tiré à la prochaine présence (RG17)
+            }
+            Long relecteurId = tire.get();
+            relectures.save(new Relecture(exercice, etudiants.getReferenceById(relecteurId), horloge.instant()));
+            relecteurs.add(relecteurId);
+            charges.merge(relecteurId, 1L, Long::sum);
+            exercice.marquerEnAttenteDeRelecture();
+        }
     }
 
     /** Bug #32 : une seule assignation à la fois par session, les autres attendent leur tour. */

@@ -25,13 +25,15 @@ public class PresenceService {
     private final PresenceRepository presences;
     private final SessionCoursRepository sessions;
     private final EtudiantRepository etudiants;
+    private final AssignationService assignation;
     private final Clock horloge;
 
     public PresenceService(PresenceRepository presences, SessionCoursRepository sessions,
-            EtudiantRepository etudiants, Clock horloge) {
+            EtudiantRepository etudiants, AssignationService assignation, Clock horloge) {
         this.presences = presences;
         this.sessions = sessions;
         this.etudiants = etudiants;
+        this.assignation = assignation;
         this.horloge = horloge;
     }
 
@@ -53,6 +55,7 @@ public class PresenceService {
             throw new ErreurMetierException(CodeErreur.DEJA_PRESENT); // RG3
         }
         Presence presence = presences.save(new Presence(session, etudiant, SourcePresence.ETUDIANT, maintenant));
+        assignation.assignerEnAttente(session); // RG17 : un nouveau présent peut relire les exercices en attente
         return PresenceDto.de(presence);
     }
 }

@@ -1,4 +1,5 @@
 import type { Etudiant } from '../api/types'
+import { DeposerExercice } from '../composants/DeposerExercice'
 import { MarquerPresence } from '../composants/MarquerPresence'
 
 export function EcranEtudiant({ etudiant }: { etudiant: Etudiant }) {
@@ -6,6 +7,7 @@ export function EcranEtudiant({ etudiant }: { etudiant: Etudiant }) {
     <>
       <h2>Bonjour {etudiant.nom}</h2>
       <MarquerPresence etudiantId={etudiant.id} />
+      <DeposerExercice etudiant={etudiant} />
     </>
   )
 }

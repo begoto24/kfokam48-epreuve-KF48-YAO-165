@@ -26,13 +26,19 @@ Djoukoya-de-begoto Prince Malachie. Une entrée par étape, écrite au moment o�
 
 ## Étape 3 — Enveloppe
 
-**Fait :**
+**Fait :** avant d'ouvrir l'enveloppe, mon test visuel a trouvé un bug d'interface : choisir une promotion côté Étudiant ne faisait rien (#30, PR #31). Ensuite, environ 1h en deux sujets séparés.
+- **Bug** « deux étudiants en même temps, un seul apparaît » : issue #32 d'abord, puis un test rouge commité seul (`2730562`). Sur 20 répétitions, chaque fois une présence est perdue. Cause : deux transactions assignent le même exercice en attente, la contrainte RG6 rejette la seconde et annule aussi sa présence. Corrigé par un verrou sur la session (`dd9f46d`), test vert, PR #33.
+- **Changement** « deux relecteurs » : issues #34 et #35, re-priorisation écrite dans #15, #16 et #17. Puis un commit d'analyse dédié (cahier v2, D1, D2, D4), le contrat v1.2 avant le code, une migration V2 ajoutée sans toucher V1, et les PR #36, #37 et #38 (#16 passé Must).
 
-**Bloqué :**
+**Bloqué :** environ 10 min sur le test de migration. Une base H2 en mémoire partagée entre Flyway et JDBC renvoyait une erreur de contrainte incompréhensible ; je l'ai isolée par un essai H2 seul, puis remplacée par une base en fichier temporaire. J'ai aussi vérifié la migration V2 sur ma vraie base de développement, remplie pendant le test visuel : aucune donnée perdue.
 
-**IA :**
+**IA :** Claude a proposé l'hypothèse de cause du bug. Je ne l'ai acceptée qu'après que le test l'a reproduite (échec à chaque répétition avec `DataIntegrityViolationException`), puis vue disparaître avec le correctif (20/20). Les 4 décisions sur le changement (note provisoire dans la moyenne, un seul pair éligible, données existantes, sacrifice) sont les miennes : l'IA les a proposées, je les ai validées. Les nouvelles moyennes du tableau ont été recalculées à la main dans les tests (15,0 ; 11,5 ; 13,5).
 
 **Ce que j'ai sorti du périmètre pour absorber le changement, et pourquoi :**
+- **EF13 / RG4, blocage après 5 codes faux (#15) → Won't.** C'est une protection contre la devinette, pas le parcours principal, et le code expire de toute façon en 15 min (RG1). Le `429` reste documenté dans le contrat pour plus tard.
+- **EF15, détail de session (#17) → Won't.** C'était déjà un Could, et le tableau montre déjà au formateur les relectures en attente (Q11).
+- **En échange, EF14 (l'étudiant voit sa note, #16) passe Should → Must**, parce que le client demande que la note provisoire soit « affichée en attendant ».
+- Les Should restants (#11 brouillon, #12 remplacer le lien, #13 présence manuelle, #14 clôture) passent après la livraison v1.0 et l'épreuve Git : je ne les ferai que s'il reste du temps.
 
 ---
 

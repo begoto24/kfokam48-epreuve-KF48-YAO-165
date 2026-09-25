@@ -44,25 +44,15 @@ Djoukoya-de-begoto Prince Malachie. Une entrée par étape, écrite au moment o�
 
 ## Étape 4 — Version finale
 
-**Fait :**
+**Fait :** issue #39. J'ai aligné les documents sur la version du sujet en cinq étapes (plus d'épreuve Git séparée), écrit `CHANGELOG.md` (v0.1 et v1.0, chaque entrée reliée à sa PR et à son issue) et mis le README à jour pour la v1.0. Le README a été **testé depuis un clone vierge** : clone GitHub dans un dossier vide, puis ses 3 commandes. Résultat : migrations V1, V1.1 et V2 appliquées, tableau de démo correct, ouverture de session et présence qui fonctionnent, 144 tests et build frontend verts. J'ai trié le backlog : #14, #13, #11 et #12 reportés après v1.0 dans cet ordre, avec une justification écrite sur chaque issue. Les opérations du contrat non livrées sont marquées comme telles.
 
-**Bloqué :**
+**Bloqué :** environ 5 min. Le premier clone, dans un dossier temporaire trop profond, a échoué (« Filename too long », limite de 260 caractères de Windows) ; je l'ai refait dans un chemin court. Le port 5173 étant occupé par mon serveur de développement, Vite a pris le 5174 tout seul.
 
-**IA :**
-
----
-
-## Étape 5 — Épreuve Git
-
-**Fait :**
-
-**Bloqué :**
-
-**IA :**
+**IA :** Claude a rédigé le CHANGELOG à partir de la liste réelle des PR fusionnées (`gh pr list`), que j'ai comparée ligne à ligne. Le test du clone vierge est la vérification du README lui-même : je n'ai lancé que ses commandes, rien d'autre.
 
 ---
 
-## Étape 6 — Soumission
+## Étape 5 — Soumission
 
 **Fait :**
 

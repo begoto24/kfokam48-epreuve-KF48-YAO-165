@@ -1,0 +1,26 @@
+# ---- Java / Maven ----
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+hs_err_pid*
+
+# ---- Node / React ----
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+npm-debug.log*
+
+# ---- Secrets / env ----
+.env
+.env.*
+!.env.example
+
+# ---- IDE / OS ----
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db

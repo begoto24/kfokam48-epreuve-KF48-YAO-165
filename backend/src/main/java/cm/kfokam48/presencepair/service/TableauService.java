@@ -1,0 +1,72 @@
+package cm.kfokam48.presencepair.service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import cm.kfokam48.presencepair.exception.CodeErreur;
+import cm.kfokam48.presencepair.exception.ErreurMetierException;
+import cm.kfokam48.presencepair.repository.EtudiantRepository;
+import cm.kfokam48.presencepair.repository.PromotionRepository;
+import cm.kfokam48.presencepair.repository.TableauRepository;
+import cm.kfokam48.presencepair.web.dto.LigneTableauDto;
+
+/** EF8 : le tableau du formateur. La moyenne est calculée ici et nulle part ailleurs (RG16, F3). */
+@Service
+@Transactional(readOnly = true)
+public class TableauService {
+
+    private final PromotionRepository promotions;
+    private final EtudiantRepository etudiants;
+    private final TableauRepository tableau;
+
+    public TableauService(PromotionRepository promotions, EtudiantRepository etudiants, TableauRepository tableau) {
+        this.promotions = promotions;
+        this.etudiants = etudiants;
+        this.tableau = tableau;
+    }
+
+    public List<LigneTableauDto> tableau(Long promotionId) {
+        if (!promotions.existsById(promotionId)) {
+            throw new ErreurMetierException(CodeErreur.PROMOTION_INCONNUE);
+        }
+        Map<Long, Number> presences = parEtudiant(tableau.presences(promotionId));
+        Map<Long, Number> exercices = parEtudiant(tableau.exercicesDeposes(promotionId));
+        Map<Long, Number> moyennes = parEtudiant(tableau.moyennes(promotionId));
+        Map<Long, Number> enAttente = parEtudiant(tableau.relecturesEnAttente(promotionId));
+
+        return etudiants.findByPromotionIdOrderByNomAsc(promotionId).stream()
+                .map(e -> new LigneTableauDto(e.getId(), e.getNom(),
+                        compte(presences, e.getId()),
+                        compte(exercices, e.getId()),
+                        arrondi(moyennes.get(e.getId())),
+                        compte(enAttente, e.getId())))
+                .toList();
+    }
+
+    /** RG16 : arrondi à 2 décimales, null sans note. */
+    static Double arrondi(Number moyenne) {
+        if (moyenne == null) {
+            return null;
+        }
+        return BigDecimal.valueOf(moyenne.doubleValue()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
+    private static long compte(Map<Long, Number> valeurs, Long etudiantId) {
+        Number valeur = valeurs.get(etudiantId);
+        return valeur == null ? 0 : valeur.longValue();
+    }
+
+    private static Map<Long, Number> parEtudiant(List<Object[]> lignes) {
+        Map<Long, Number> resultat = new HashMap<>();
+        for (Object[] ligne : lignes) {
+            resultat.put((Long) ligne[0], (Number) ligne[1]);
+        }
+        return resultat;
+    }
+}

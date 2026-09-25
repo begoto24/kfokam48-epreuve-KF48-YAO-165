@@ -17,3 +17,10 @@ export type SessionOuverte = {
   ouvertureAt: string
   expirationAt: string
 }
+
+export type Presence = {
+  id: number
+  sessionId: number
+  etudiantId: number
+  source: 'ETUDIANT' | 'FORMATEUR'
+}

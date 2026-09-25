@@ -1,6 +1,8 @@
 # PrésencePair KFOKAM48
 
-Application de présence par code et de relecture entre pairs pour la formation KFOKAM48 : un formateur ouvre une session et obtient un code de présence ; les étudiants marquent leur présence, déposent le lien de leur exercice et relisent celui d'un pair tiré au sort ; le formateur suit tout dans un tableau.
+Application de présence par code et de relecture entre pairs pour la formation KFOKAM48 : un formateur ouvre une session et obtient un code de présence ; les étudiants marquent leur présence, déposent le lien de leur exercice, et chaque exercice est relu par **deux pairs tirés au sort** ; la note retenue est la moyenne des deux, **provisoire** tant qu'une seule relecture est rendue ; le formateur suit tout dans un tableau.
+
+Version **1.0** — voir [CHANGELOG.md](CHANGELOG.md).
 
 Épreuve finale fullstack — Djoukoya-de-begoto Prince Malachie · KF48-YAO-165
 
@@ -36,6 +38,8 @@ Chargées automatiquement au premier démarrage (`backend/src/main/resources/db/
   - *React - composants et etat* (code expiré, session ouverte) : dépôts et relectures en cours.
 - **KFOKAM48 - Cours du soir** : 3 étudiants, 1 session avec un exercice sans relecteur éligible.
 
+Au démarrage, la migration V2 transforme les exercices de démo déjà notés en **notes provisoires** (une seule relecture sur les deux attendues) : c'est visible dans le tableau et dans *Mes exercices et mes notes*.
+
 Les codes des sessions de démo sont expirés. **Pour tester le marquage de présence**, ouvrir une nouvelle session dans l'onglet *Formateur*, puis saisir le code affiché dans l'onglet *Étudiant*.
 
 Pour repartir de données neuves : arrêter le backend et supprimer le dossier `backend/data/`.
@@ -43,8 +47,9 @@ Pour repartir de données neuves : arrêter le backend et supprimer le dossier `
 ## Parcours rapide
 
 1. **Formateur** : choisir *KFOKAM48 - Promotion 2026*, ouvrir une session → un code s'affiche ; le tableau est en dessous.
-2. **Étudiant** : choisir la promotion puis un nom (pas de mot de passe), saisir le code, déposer un lien.
-3. **Relecteur** : choisir un nom (par ex. *Atangana Carine*), relire et rendre une note sur 20.
+2. **Étudiant** : choisir la promotion puis un nom (pas de mot de passe), par exemple *Bello Ibrahim* ; saisir le code, puis déposer un lien dans la nouvelle session. Faire de même avec *Kamga Sandrine* et *Mbarga Yannick* (présence seulement) : l'exercice de Bello reçoit ses **deux relecteurs**.
+3. **Relecteur** : choisir *Kamga Sandrine*, rendre une note (essayer d'abord  ou  pour voir l'erreur) ; la note de Bello est alors **provisoire**. Rendre la seconde avec *Mbarga Yannick* : elle devient définitive.
+4. **Étudiant** *Bello Ibrahim* → *Mes exercices et mes notes* ; **Formateur** → *Actualiser* le tableau.
 
 ## Tests
 

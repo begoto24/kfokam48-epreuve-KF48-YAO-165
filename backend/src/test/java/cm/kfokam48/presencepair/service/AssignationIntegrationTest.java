@@ -25,7 +25,7 @@ import cm.kfokam48.presencepair.repository.RelectureRepository;
 import cm.kfokam48.presencepair.repository.SessionCoursRepository;
 import cm.kfokam48.presencepair.web.dto.ExerciceDeposeDto;
 
-/** Issue #7 — EF5 : assignation au dépôt et file d'attente (RG5, RG6, RG7, RG17). */
+/** Issues #7 et #34 — EF5 (v2) : deux relecteurs distincts, au dépôt puis en file d'attente (RG5, RG6, RG7, RG17). */
 @SpringBootTest
 @Transactional
 class AssignationIntegrationTest {
@@ -96,14 +96,40 @@ class AssignationIntegrationTest {
     }
 
     @Test
-    void rg6_unePresenceSupplementaireNeDonnePasDeSecondRelecteur() {
+    void rg6v2_deuxPairsPresents_deuxRelecteursDistinctsDesLeDepot() {
         presenceService.marquer("ASGN23", bob.getId());
-        ExerciceDeposeDto depot = exerciceService.deposer(session.getId(), alice.getId(), LIEN);
         presenceService.marquer("ASGN23", chloe.getId());
 
-        List<Relecture> relecturesDeLExercice = relectures.findAll().stream()
-                .filter(r -> r.getExercice().getId().equals(depot.id())).toList();
-        assertThat(relecturesDeLExercice).hasSize(1);
+        ExerciceDeposeDto depot = exerciceService.deposer(session.getId(), alice.getId(), LIEN);
+
+        assertThat(relecteursDe(depot.id())).containsExactlyInAnyOrder(bob.getId(), chloe.getId());
+    }
+
+    @Test
+    void rg17v2_unSeulPairPresent_leSecondRelecteurEstTireASonArrivee() {
+        presenceService.marquer("ASGN23", bob.getId());
+        ExerciceDeposeDto depot = exerciceService.deposer(session.getId(), alice.getId(), LIEN);
+        assertThat(relecteursDe(depot.id())).containsExactly(bob.getId());
+
+        presenceService.marquer("ASGN23", chloe.getId());
+
+        assertThat(relecteursDe(depot.id())).containsExactlyInAnyOrder(bob.getId(), chloe.getId());
+    }
+
+    @Test
+    void rg6v2_jamaisPlusDeDeuxRelecteurs() {
+        Etudiant david = etudiants.save(new Etudiant("David", alice.getPromotion()));
+        presenceService.marquer("ASGN23", bob.getId());
+        presenceService.marquer("ASGN23", chloe.getId());
+        ExerciceDeposeDto depot = exerciceService.deposer(session.getId(), alice.getId(), LIEN);
+        presenceService.marquer("ASGN23", david.getId());
+
+        assertThat(relecteursDe(depot.id())).hasSize(2).doesNotContain(alice.getId());
+    }
+
+    private List<Long> relecteursDe(Long exerciceId) {
+        return relectures.findAll().stream().filter(r -> r.getExercice().getId().equals(exerciceId))
+                .map(r -> r.getRelecteur().getId()).toList();
     }
 
     private Relecture relectureDe(Long exerciceId) {

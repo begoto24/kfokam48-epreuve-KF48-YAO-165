@@ -11,6 +11,7 @@ import java.util.random.RandomGenerator;
  * <ul>
  * <li>RG7 : parmi les étudiants présents à la session, au hasard ;</li>
  * <li>RG5 : jamais l'auteur de l'exercice ;</li>
+ * <li>RG6 (v2) : jamais un étudiant qui relit déjà cet exercice ;</li>
  * <li>RG7 (répartition) : à chance égale, parmi les présents qui ont le moins de relectures dans la session.</li>
  * </ul>
  */
@@ -26,10 +27,14 @@ public final class TirageRelecteur {
      * @param auteurId auteur de l'exercice
      * @param presents identifiants des étudiants présents à la session
      * @param charges  nombre de relectures déjà assignées dans la session, par étudiant (absent = 0)
+     * @param dejaRelecteurs étudiants qui relisent déjà cet exercice (RG6)
      * @return le relecteur tiré, ou vide si aucun présent n'est éligible (RG17)
      */
-    public Optional<Long> choisir(Long auteurId, Collection<Long> presents, Map<Long, Long> charges) {
-        List<Long> eligibles = presents.stream().filter(id -> !id.equals(auteurId)).distinct().toList();
+    public Optional<Long> choisir(Long auteurId, Collection<Long> presents, Map<Long, Long> charges,
+            Collection<Long> dejaRelecteurs) {
+        List<Long> eligibles = presents.stream()
+                .filter(id -> !id.equals(auteurId) && !dejaRelecteurs.contains(id))
+                .distinct().toList();
         if (eligibles.isEmpty()) {
             return Optional.empty();
         }

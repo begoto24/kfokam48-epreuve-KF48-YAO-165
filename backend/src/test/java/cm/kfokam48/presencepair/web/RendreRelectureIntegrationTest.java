@@ -68,11 +68,21 @@ class RendreRelectureIntegrationTest {
     }
 
     @Test
-    void rendre_200_relectureRendueEtExerciceRelu() throws Exception {
+    void rendre_200_premiereRelecture_exercicePartiellementRelu() throws Exception {
         rendre(relecture.getId(), "{ \"note\": 14, \"commentaire\": \"Solide\" }", relecteur.getId())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statut").value("RENDUE"))
                 .andExpect(jsonPath("$.note").value(14));
+        assertThat(exercice.getStatut()).isEqualTo(StatutExercice.PARTIELLEMENT_RELU); // RG16 v2 : note provisoire
+    }
+
+    @Test
+    void rg16v2_secondeRelectureRendue_exerciceRelu() throws Exception {
+        Relecture seconde = relectures.save(new Relecture(exercice, autre, Instant.now()));
+        rendre(relecture.getId(), "{ \"note\": 14, \"commentaire\": \"Solide\" }", relecteur.getId())
+                .andExpect(status().isOk());
+        rendre(seconde.getId(), "{ \"note\": 10, \"commentaire\": \"Juste\" }", autre.getId())
+                .andExpect(status().isOk());
         assertThat(exercice.getStatut()).isEqualTo(StatutExercice.RELU);
     }
 

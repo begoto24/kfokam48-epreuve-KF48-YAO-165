@@ -1,6 +1,8 @@
 # D2 — Modèle de données
 
-Ce diagramme décrit **exactement** le schéma créé par les migrations Flyway de `backend/src/main/resources/db/migration/` : mêmes tables, mêmes colonnes, mêmes contraintes. Toute migration qui modifie le schéma doit modifier ce fichier dans le même commit.
+> **Version 2 (étape 3)** — conséquence du changement « deux relecteurs par exercice » : migration `V2__deux_relecteurs_par_exercice.sql`. Une relecture n'est plus unique par exercice mais par couple (exercice, relecteur) ; nouveau statut `PARTIELLEMENT_RELU`.
+
+Ce diagramme décrit **exactement** le schéma créé par les migrations Flyway de `backend/src/main/resources/db/migration/` : mêmes tables, mêmes colonnes, mêmes contraintes. Toute migration qui modifie le schéma doit modifier ce fichier dans la même pull request.
 
 ```mermaid
 erDiagram
@@ -11,7 +13,7 @@ erDiagram
     ETUDIANT ||--o| TENTATIVE_CODE : "a pour compteur"
     SESSION_COURS ||--o{ EXERCICE : "reçoit"
     ETUDIANT ||--o{ EXERCICE : "dépose (auteur)"
-    EXERCICE ||--o| RELECTURE : "est relu par"
+    EXERCICE ||--o{ RELECTURE : "est relu par (0..2)"
     ETUDIANT ||--o{ RELECTURE : "relit (relecteur)"
 
     PROMOTION {
@@ -49,13 +51,13 @@ erDiagram
         BIGINT session_id FK "NOT NULL"
         BIGINT etudiant_id FK "NOT NULL - auteur"
         VARCHAR_500 lien "NOT NULL - http(s) (RG18)"
-        VARCHAR_25 statut "DEPOSE | EN_ATTENTE_RELECTURE | RELU"
+        VARCHAR_25 statut "DEPOSE | EN_ATTENTE_RELECTURE | PARTIELLEMENT_RELU | RELU"
         TIMESTAMP depose_at "NOT NULL"
         TIMESTAMP modifie_at "NULL"
     }
     RELECTURE {
         BIGINT id PK
-        BIGINT exercice_id FK, UK "NOT NULL - un seul relecteur (RG6)"
+        BIGINT exercice_id FK "NOT NULL - UK avec relecteur_id (RG6)"
         BIGINT relecteur_id FK "NOT NULL - différent de l'auteur (RG5)"
         INT note "NULL, 0..20 (RG9)"
         VARCHAR_2000 commentaire "NULL"
@@ -72,7 +74,7 @@ erDiagram
 |---|---|---|
 | `UNIQUE (session_id, etudiant_id)` | `presence` | RG3 — une présence par étudiant et par session |
 | `UNIQUE (session_id, etudiant_id)` | `exercice` | RG13 — un exercice par étudiant et par session |
-| `UNIQUE (exercice_id)` | `relecture` | RG6 — un seul relecteur par exercice |
+| `UNIQUE (exercice_id, relecteur_id)` | `relecture` | RG6 (v2) — deux relecteurs **différents** ; remplace `UNIQUE (exercice_id)` de V1 |
 | `UNIQUE (code)` | `session_cours` | RG20 — code unique |
 | `CHECK (note BETWEEN 0 AND 20)` | `relecture` | RG9 |
 | `CHECK (source IN ('ETUDIANT','FORMATEUR'))` | `presence` | RG15 |
@@ -85,6 +87,6 @@ La règle RG5 (relecteur ≠ auteur) porte sur deux tables : elle est garantie p
 - Une **promotion** regroupe 0..n étudiants et 0..n sessions ; un étudiant appartient à exactement 1 promotion.
 - Une **session** a 0..n présences et 0..n exercices.
 - Un **étudiant** a au plus 1 présence et au plus 1 exercice **par session**.
-- Un **exercice** a 0..1 relecture : 0 tant qu'il est `DEPOSE` (aucun relecteur éligible, RG17), 1 ensuite.
+- Un **exercice** a 0..2 relectures (v2) : 0 tant qu'il est `DEPOSE` (aucun relecteur éligible, RG17), puis 1 ou 2 ; le service n'en crée jamais plus de deux.
 - Un **étudiant** peut être relecteur de 0..n relectures.
 - Un **étudiant** a 0..1 compteur de tentatives (créé à sa première erreur de code).

@@ -35,7 +35,7 @@ export type Session = {
   clotureeAt: string | null
 }
 
-export type StatutExercice = 'DEPOSE' | 'EN_ATTENTE_RELECTURE' | 'RELU'
+export type StatutExercice = 'DEPOSE' | 'EN_ATTENTE_RELECTURE' | 'PARTIELLEMENT_RELU' | 'RELU'
 
 export type ExerciceDepose = {
   id: number
